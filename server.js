@@ -1,3 +1,7 @@
+const server = require('http').createServer();
+const io = require('socket.io')(server);
+
+
 const user = {
 
 };
@@ -6,18 +10,13 @@ const rooms = {
 
 };
 
-const io = require('socket.io')(
-    require('http').createServer(
-        function() {}
-    ).listen(80)
-);
-
 io.on('connection', io => {
     console.log('Connection established with a client');
 });
 
 io.on('validate', (inData, inCallback) => {
     const user = users[inData.username];
+    console.log(inData, user);
     if ( user ) {
         if ( user.password === inData.password ) {
             inCallback({ status: 'ok' });
@@ -90,4 +89,11 @@ io.on('kick', (inData, inCallback) => {
     delete users[inData.username];
     io.broadcast.emit('kicked', room);
     inCallback({ status: 'ok' });
+});
+
+
+const server_port = process.env.PORT || 3000;
+server.listen(server_port, err => {
+  if (err) throw err
+  console.log('Listening on port %d', server_port);
 });
